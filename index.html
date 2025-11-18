@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cukros üveg tipp</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#f7f7f7;margin:0}
+.box{max-width:480px;margin:40px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+input,button{box-sizing:border-box}
+input{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:6px}
+button{width:100%;padding:12px;background:#111;color:#fff;border:none;border-radius:6px;cursor:pointer}
+#result{margin-top:12px;font-weight:700}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h2>Tippeld meg, hány cukor van az üvegben!</h2>
+    <input id="email" type="email" placeholder="Email címed" required>
+    <input id="tip" type="number" placeholder="Tipped (csak szám)" required>
+    <button id="sendBtn">Küldés</button>
+    <div id="result" aria-live="polite"></div>
+  </div>
+
+<script>
+const secretNumber = 456; // titkos szám, felhasználó nem látja
+const GOOGLE_SCRIPT_URL = "IDE_A_GOOGLE_SCRIPT_URL_TEDD"; // Google Script URL
+
+(function(){
+  let usedEmails = JSON.parse(localStorage.getItem("usedEmails") || "[]");
+  const sendBtn = document.getElementById("sendBtn");
+  const emailEl = document.getElementById("email");
+  const tipEl = document.getElementById("tip");
+  const result = document.getElementById("result");
+
+  sendBtn.addEventListener("click", function(){
+    const email = (emailEl.value || "").trim();
+    const tipVal = tipEl.value || "";
+
+    if (!email || !tipVal) { result.innerText="Minden mezőt tölts ki!"; return; }
+    if (usedEmails.includes(email)) { result.innerText="Már beküldted a tipped!"; return; }
+
+    usedEmails.push(email);
+    localStorage.setItem("usedEmails", JSON.stringify(usedEmails));
+
+    result.innerText="Válaszodat beküldtük, jelentkezünk.";
+
+    fetch(GOOGLE_SCRIPT_URL+"?email="+encodeURIComponent(email))
+      .then(()=>console.log("Email értesítés elküldve"))
+      .catch(e=>console.error("Hiba értesítésnél:",e));
+  });
+})();
+</script>
+</body>
+</html>
